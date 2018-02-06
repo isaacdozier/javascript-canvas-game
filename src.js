@@ -1,15 +1,13 @@
 var Xcnt = 0, Ycnt =0
-var timer = 1/30
-var n = 1.5+(timer/2), l = n - (timer/2)
-var stick = n-l
-var tn = 1.5, tl = tn - (time/60)
+var speed = document.getElementById('speed').value
+var timer = (2/(60))
+var l = (1.5)-(timer/2), n = (l + (timer))
 var w = 640, h = 340
-var c = doc('animations')
+var c = document.getElementById('animations')
 var ctx = c.getContext("2d") 
-var inProgress = false
 var center = w/2
-
-var time = 0
+var tick = 0
+var running = false
 
 function init(c){
     document.getElementById('animations').width = w
@@ -21,8 +19,16 @@ function init(c){
 }
 
 function go(c){
+        setInterval(function(){
+            build(c)
+        }, 1000-(speed*100));
     
+}
+
+function build(c){
+    speed = document.getElementById('speed').value
     displayTime()
+    
     
     c.fillRect(0,0,w,h);
     //grid(ctx)
@@ -30,29 +36,27 @@ function go(c){
     c.strokeStyle= 'white'
     
     for(var i=0; center > i;i++){
-        buildSections(ctx)
         clockHand(ctx,i)
         
     }
     
     n = n + timer
     l = l + timer
-    
-    setTimeout(function(){
-        go(c)
-    }, 1000);
 }
 
 function displayTime(){
-    document.getElementById('s').innerHTML = time - (Math.floor(time/60)*60)
-    document.getElementById('m').innerHTML = Math.floor(time/60)
-    document.getElementById('h').innerHTML = Math.floor(time/60/60)
-    time++
+    document.getElementById('tick').innerHTML = tick
+    tick++
 }
 
 function clockHand(c,i){
     c.beginPath();
-    c.arc(w/2, h/2, ((w/2)-i)/2, (l*Math.PI)+stick, (n*Math.PI)-stick)
+    var lTmp = (l*Math.PI)-((n-l)) 
+    var nTmp = (n*Math.PI)+((n-l)) 
+    var r = 0, g = 0, b = 0
+    
+    ctx.strokeStyle= 'rgb('+r+','+(g+(i))+','+(b+(i/10))+')'
+    c.arc(w/2, h/2, ((w/2)-i)/2, lTmp, nTmp)
     c.stroke()
 }
 
