@@ -1,5 +1,4 @@
 var Xcnt = 0, Ycnt =0
-var speed = document.getElementById('speed').value
 var timer = (2/(60))
 var l = (1.5)-(timer/2), n = (l + (timer))
 var w = 640, h = 340
@@ -23,12 +22,11 @@ function go(c){
         cnt++
          setInterval(function(){
             build(ctx)
-        }, 1000-(speed*100));
+        }, 1000);
     
 }
 
 function build(c){
-    speed = document.getElementById('speed').value
     displayTick()
     
     c.fillRect(0,0,w,h);
