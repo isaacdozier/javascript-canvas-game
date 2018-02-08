@@ -1,13 +1,12 @@
 var Xcnt = 0, Ycnt =0
 var timer = (2/(60))
-var l = (1.5)-(timer/2), n = (l + (timer))
-var w = 640, h = 340
+var sl = (1.5)-(timer/2), sn = (sl + (timer))
+var ml = (1.5)-(timer/2), mn = (ml + (timer))
+var w = 440, h = 340
 var c = document.getElementById('animations')
 var ctx = c.getContext("2d") 
 var center = h/2
 var tick = 0
-var running = false
-var cnt
 
 function init(c){
     document.getElementById('animations').width = w
@@ -15,60 +14,73 @@ function init(c){
     c.fillRect(0,0,w,h);
     grid(ctx)
     xy(ctx)
-    c.strokeStyle= 'white'
 }
 
 function go(c){
-        cnt++
-         setInterval(function(){
-            build(ctx)
-        }, 1000);
-    
+    var timeStart = Date.now()
+     setInterval(function(){
+        build(c,tick)
+        displayTick(c)
+    }, 1000-(Date.now()-timeStart));
 }
 
-function build(c){
-    displayTick()
-    
+function build(c,t){
+    c.fillStyle = 'black'
     c.fillRect(0,0,w,h);
     
-    
     for(var i=0; center > i;i++){
-         clockHand(ctx,i)
+        var r = 0, g = 0, b = 0
+        
+        c.strokeStyle= 'rgb('+r+','+g+i+','+b+(i/10)+')'
+        
+        c.beginPath()
+        c.arc(w/2, h/2, ((h/2)-i)/2, (sl*Math.PI-(sn-sl)) , (sn*Math.PI+(sn-sl)))
+        c.stroke()
     }
     
-    grid(ctx)
-    xy(ctx)
     
-    n = n + timer
-    l = l + timer
+    sn = sn + timer
+    sl = sl + timer
+    
+    grid(c)
+    xy(c)
 }
 
-function displayTick(){
-    document.getElementById('tick').innerHTML = tick
+function hour(){
+    return Math.floor(tick/60/60)
+    }
+    
+function minute(){  
+    return Math.floor(tick/60) - (hour()*60)
+    }
+    
+function second(){  
+    return tick - (minute()*60) - (hour()*60*60)
+    }
+
+function displayTick(c){
+    var time = leadZero(hour()) + ':' + leadZero(minute()) + ':' + leadZero(second())
+
+    c.beginPath()
+    c.fillStyle = "white"
+    c.font = "28px Arial";
+    c.fillText(time,10,50);
+    c.stroke()
+    
     tick++
 }
 
-function clockHand(c,i){
-    var lTmp = (l*Math.PI)-((n-l)) 
-    var nTmp = (n*Math.PI)+((n-l)) 
-    var r = 0, g = 0, b = 0
-    
-    ctx.strokeStyle= 'rgb('+r+','+g+i+','+b+(i/10)+')'
-    
-    c.beginPath();
-    c.arc(w/2, h/2, ((h/2)-i)/2, lTmp, nTmp)
-    c.stroke()
-}
+function leadZero(n){if(n < 10){return "0" + n} else {return n}}
 
 //X and Y 0 Coords
 function xy(c){
-    ctx.beginPath();
-    ctx.strokeStyle= 'white'
+    c.strokeStyle= 'white'
     
-    ctx.moveTo(w/2,0);
+    c.beginPath();
+    c.moveTo(w/2,0);
     c.lineTo(w/2,h);
     c.stroke()
-    ctx.moveTo(0,h/2);
+    c.moveTo(0,h/2);
     c.lineTo(w,h/2);
     c.stroke()
 }
@@ -77,7 +89,7 @@ function grid(c){
     var gh = h/((h)/20)
     var gw = w/((w)/20)
     
-    ctx.strokeStyle= 'grey'
+    c.strokeStyle= 'grey'
     
     //horizontal lines
     var hn = 0
