@@ -110,25 +110,3 @@ function grid(c){
     //draw
     c.stroke()
 }
-
-
-//old functions
-function lineMove(){
-    c.beginPath();
-    c.moveTo(w/2,h/2);
-    c.lineTo(w/2 + Xcnt,h/4 + Ycnt);
-    c.stroke()
-    
-    
-    if(h/4 + Ycnt > h/2){
-        Xcnt--;
-    }else{
-        Xcnt++;
-    }
-    
-    if(w/2 + Xcnt < w/2){
-        Ycnt--;
-    }else{
-        Ycnt++;
-    }
-}
