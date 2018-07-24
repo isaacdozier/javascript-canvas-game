@@ -44,7 +44,7 @@ function go(c){
      setInterval(function(){
         build(c)
         displayScore(c)
-        displayTick(c)
+        //displayTick(c)
     }, frame_rate-(Date.now()-timeStart));
 }
 
@@ -59,6 +59,7 @@ function build(c){
     sl = sl + timer
     
     hero(c)
+    thing(c)
     
     
     if(hero_trigger_pressed){
@@ -147,6 +148,7 @@ function missile(c,num,x,y){
     }
     launch
     
+    c.strokeStyle = 'blue'
     var launch = setInterval(function(){
             
         X = x
@@ -178,7 +180,14 @@ function missile_explode(c,t,x,y){
     var explosion = setInterval(function(){
         
         var i = 0
-        c.strokeStyle= 'rgb('+(i*7)+','+(i)+','+(i)+')'
+        
+        
+        if(i < 5){
+            c.strokeStyle= 'white'
+        } else {
+            c.strokeStyle= 'red'
+        }
+        
         
         c.moveTo(x,y)
         c.lineTo(x + grid*4,y + grid*4)
@@ -187,8 +196,6 @@ function missile_explode(c,t,x,y){
         c.lineTo(x - grid*4,y + grid*4)
         
         c.stroke()
-        
-        //console.log('[signal lost - '+x+'|'+y+']')
         
         if(i > 10){
             i = i + 1 
@@ -219,137 +226,118 @@ function hero(c){
     c.stroke()
 }
 
-
-var thing_count = 0
-function thing(c){
-    var timeStart = Date.now()
-    var X = getRandomArbitrary(20, (w)-20), 
-        Y = getRandomArbitrary(20, h/2)
-        
-        thing_count++
+var X = getRandomArbitrary(20, (w)-20), 
+    Y = h/4
     
-    var gm
-    var tracking_number 
-    if(!tracking_number){
-        tracking_number = tracking.thing.length + 0
-        update_thing_tracking(tracking_number,X,Y)
+    
+
+var gm
+var tracking_number 
+if(!tracking_number){
+    tracking_number = tracking.thing.length + 0
+    update_thing_tracking(tracking_number,X,Y)
+}
+
+var thing_coords = tracking.thing[tracking_number].split('|')
+
+var m_min_x,m_max_x,m_min_y,m_max_y
+var moving, step_X, step_Y
+var new_thing = false
+var dir = 1
+var thing_count = 1
+function thing(c){
+    
+    if(tracking.score && 
+       tracking.score === thing_count){
+        thing_explode(c,thing_coords[0],thing_coords[1])
+        tracking.thing = []
+        thing_count++
+        new_thing = true
+        return
+    }
+    //console.log('thingy ' + thing_coords)
+    var random_negative = Math.round(getRandomArbitrary(-1,1))
+    
+    
+    if(moving > 1){
+        moving = moving - Math.ceil(moving/8)
+    }else{
+        moving = getRandomArbitrary(0,20)
     }
     
-    var thing_coords = tracking.thing[tracking_number].split('|')
+    //Y Max
+    if(thing_coords[0] > w-20){
+        dir = -1
+        step_X = Number(thing_coords[0]) - Number(moving/4)
+        thing_coords[0] = step_X
+    } else 
     
-    var m_min_x,m_max_x,m_min_y,m_max_y
-    var moving, step_X, step_Y
+    //Y Min
+    if(thing_coords[0] < 20){
+        dir = 1
+        step_X = Number(thing_coords[0]) + Number(moving/4)
+        thing_coords[0] = step_X
+        
+    } else 
     
-    var area_X = w/2
-    var area_Y = h/4
+    //back wall
+    if(thing_coords[1] < 20){
+        thing_coords[1]= Number(thing_coords[1]) + Number(moving*4)
+    } else 
     
-    basic_mob
-    basic_mob_AI
+    //player wall
+    if(thing_coords[1] > ((h/2)-20)){
+        
+        thing_coords[1] = Number(thing_coords[1]) - Number(moving*4)
     
-    var basic_mob_attack = setInterval(function(){
-        
-    }, frame_rate-(Date.now()-timeStart));
-    var basic_mob_AI = setInterval(function(){
-        //console.log('thingy ' + thing_coords)
-        var random_negative = Math.round(getRandomArbitrary(-1,1))
-        
-        if(moving > 1){
-            moving = moving - Math.ceil(moving/8)
-            //tracking.thing.splice(tracking_number,1, x + '|' + y)
-        }else{
-            m_min_x = (thing_coords[0] - X_now)*2.4
-            m_max_x = (X_now - thing_coords[0])*2.4
-            
-            
-            m_min_x = m_min_x * random_negative
-            m_max_x = m_max_x
-            
-            moving = getRandomArbitrary(m_min_x,m_max_x)
-        }
-        
-        
-        if(X_now < thing_coords[0]){
-            step_X = Number(thing_coords[0]) + Number(moving/4)
-            step_Y = Number(thing_coords[1]) - Number(2*random_negative)
-            thing_coords[0] = step_X
-            thing_coords[1] = step_Y
-        } else 
-        if(X_now > thing_coords[0]){
-            step_X = Number(thing_coords[0]) + Number(moving/4)
-            step_Y = Number(thing_coords[1]) - Number(2*random_negative)
-            thing_coords[0] = step_X
-            thing_coords[1] = step_Y
-            
-        } else 
-        if(area_Y  > thing_coords[1]){
-            step_X = Number(thing_coords[0]) + Number(moving/4)
-            step_Y = Number(thing_coords[1]) + Number(4*random_negative)
-            thing_coords[0] = step_X
-            thing_coords[1] = step_Y
-        } else 
-        if(area_Y < thing_coords[1]){
-            step_X = Number(thing_coords[0]) + Number(moving/4)
-            step_Y = Number(thing_coords[1]) - Number(4*random_negative)
-            thing_coords[0] = step_X
-            thing_coords[1] = step_Y
-            
-        } else 
-        if(thing_coords[1] < 20){
-            step_X = Number(thing_coords[0]) + Number(moving/4)
-            step_Y = Number(thing_coords[1]) + Number(16*random_negative)
-            thing_coords[0] = step_X
-            thing_coords[1] = step_Y
-            
-        } else{
-            step_X = Number(thing_coords[0]) - Number(moving/2*random_negative)
-            step_Y = Number(thing_coords[1]) + Number(4*random_negative)
-            thing_coords[0] = step_X
-        }
-        
-        if(tracking.score && 
-           tracking.score === thing_count){
-            clearInterval(basic_mob)
-            clearInterval(basic_mob_AI)
-            thing_explode(c,thing_coords[0],thing_coords[1])
-            tracking.thing = []
-            new thing(c)
-        }
-        
+    //standard movement
+    } else {
+        step_X = Number(thing_coords[0]) + Number(moving/(frame_rate/20)*dir)
+        step_Y = Number(thing_coords[1]) + Number(moving/(frame_rate/20)*Math.round(getRandomArbitrary(-1,1)))
+        thing_coords[0] = step_X
+        thing_coords[1] = step_Y
+    }
+    
+    if(new_thing){
+        X = getRandomArbitrary(20, (w)-20)
+        thing_coords[0] = X
+        new_thing = false
+    } else {
         X = Number(thing_coords[0])
-        Y = Number(thing_coords[1])
-        
-        update_thing_tracking(tracking_number,thing_coords[0],thing_coords[1])
-    }, frame_rate-(Date.now()-timeStart));
+    }
     
-    var basic_mob = setInterval(function(){
-        
-        gm = grid*2
-        c.strokeStyle = 'white'
-        c.moveTo(X, Y)
-        c.lineTo(X + gm,Y + gm)
-        c.moveTo(X, Y)
-        c.lineTo(X - gm,Y - gm)
-        c.moveTo(X, Y)
-        c.lineTo(X + gm,Y - gm)
-        c.moveTo(X, Y)
-        c.lineTo(X - gm,Y + gm)
-        
-        c.moveTo(X, Y)
-        c.lineTo(X - grid*3.5,Y)
-        c.moveTo(X, Y)
-        c.lineTo(X + grid*3.5,Y)
-        c.stroke()
-    }, frame_rate-(Date.now()-timeStart));
-}
+    Y = Number(thing_coords[1])
+    
+    
+    
+    gm = grid*2
+    c.moveTo(X, Y)
+    c.lineTo(X + gm,Y + gm)
+    c.moveTo(X, Y)
+    c.lineTo(X - gm,Y - gm)
+    c.moveTo(X, Y)
+    c.lineTo(X + gm,Y - gm)
+    c.moveTo(X, Y)
+    c.lineTo(X - gm,Y + gm)
+    
+    c.moveTo(X, Y)
+    c.lineTo(X - grid*3.5,Y)
+    c.moveTo(X, Y)
+    c.lineTo(X + grid*3.5,Y)
+    c.stroke()
+    
+    update_thing_tracking(tracking_number,thing_coords[0],thing_coords[1])
+};
 
 function thing_explode(c,x,y){
     
     var timeStart = Date.now()
+    explosion
     var explosion = setInterval(function(){
         
         var i = 0
-        c.strokeStyle= 'red'
-        console.log('test')
+        c.strokeStyle= 'white'
+        console.log('thing_explode_test')
         c.moveTo(x,y)
         c.lineTo(x + grid*i/2,y + grid*i/2)
         
@@ -388,7 +376,7 @@ function thing_explode(c,x,y){
         }
         
     }, frame_rate-(Date.now()-timeStart));
-    explosion
+    
 }
 
 function update_thing_tracking(t_num,x,y){
@@ -405,7 +393,7 @@ function displayTick(c){
     c.beginPath()
     c.fillStyle = "white"
     c.font = "12px Arial";
-    c.fillText('Frames: ' + tick,10,20);
+    c.fillText('FPS: ' + (tick/(tick/frame_rate)),10,20);
     c.stroke()
     
     tick++
